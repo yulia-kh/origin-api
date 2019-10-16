@@ -32,8 +32,13 @@ const PersonsService = {
     return db('persons')
       .where({id})
       .delete();
-  }
-    
+  },
+
+  updatePerson(db, id, newPersonsFields) {
+    return db('persons')
+      .where({ id })
+      .update(newPersonsFields);
+  }      
 };
 
 
