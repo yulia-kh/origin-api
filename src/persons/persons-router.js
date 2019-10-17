@@ -41,6 +41,7 @@ personsRouter
       newParent
     )
       .then(person => {
+
         const parent_id = person[0].id;
         const newRelation = {child_id:id, parent_id, relation_to_child};
 
@@ -49,7 +50,7 @@ personsRouter
           newRelation
         )
           .then(() => {
-            res.status(201).json(person);
+            res.status(201).json(person[0]);
           }); 
       })
       .catch(next);
@@ -65,6 +66,14 @@ personsRouter
       })
       .catch(next);
   })
+  .get((req, res, next) => {
+    const { id } = req.params;
+    PersonsService.getOnePerson(req.app.get('db'), id)
+      .then(person => {
+        res.json(person[0]);
+      })
+      .catch(next);
+  })
   .patch(jsonBodyParser, (req, res, next) => {
     const { relation_to_child, first_name, last_name, date_of_birth, date_of_death, details } = req.body;
     const personToUpdate = { first_name, last_name, date_of_birth, date_of_death, details };
@@ -72,8 +81,9 @@ personsRouter
     const { id } = req.params;
 
     PersonsService.updatePerson(req.app.get('db'), id, personToUpdate)
-      .then(() => {
+      .then((updatedPerson) => {
         res.status(204).end();
+        // json(updatedPerson[0]);
       })
       .catch(next);
   });
