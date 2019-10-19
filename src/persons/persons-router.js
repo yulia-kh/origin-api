@@ -1,24 +1,30 @@
 const express = require('express');
 const PersonsService = require('./persons-service');
+const { requireAuth } = require('../middleware/jwt-auth');
 
 const personsRouter = express.Router();
 const jsonBodyParser = express.json();
 
-personsRouter
-  .route('/:id/tree')
-  .get((req, res, next) => {
-    PersonsService.getAllParents(req.app.get('db'))
-      .then(persons => {
-        res.json(persons);
-      })
-      .catch(next);
-  });
+
+
+
+// personsRouter
+//   .route('/:id/tree')
+//   .all(requireAuth)
+//   .get((req, res, next) => {
+//     PersonsService.getAllParents(req.app.get('db'))
+//       .then(persons => {
+//         res.json(persons);
+//       })
+//       .catch(next);
+//   });
 
 personsRouter
   .route('/:id/parents')
+  .all(requireAuth)
   .post(jsonBodyParser, (req, res, next) => {
-    let { relation_to_child, first_name, last_name, date_of_birth, date_of_death, details } = req.body;
-    const newParent = {first_name, last_name, date_of_birth, date_of_death, details};
+    let { relation_to_child, first_name, last_name, date_of_birth, date_of_death, details, user_id } = req.body;
+    const newParent = {first_name, last_name, date_of_birth, date_of_death, details, user_id};
     const { id } = req.params;
 
     if(!date_of_birth) {
@@ -35,6 +41,8 @@ personsRouter
           error: {message: 'Request body must contain \'mother or \'father\'.'}
         });
     }
+
+    newParent.user_id = req.user.id;
 
     PersonsService.insertParent(
       req.app.get('db'),
@@ -58,6 +66,7 @@ personsRouter
 
 personsRouter
   .route('/:id')
+  .all(requireAuth)
   .delete((req, res, next) => {
     const { id } = req.params;
     PersonsService.deletePerson(req.app.get('db'), id)
