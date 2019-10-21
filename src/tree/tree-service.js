@@ -10,22 +10,14 @@ const TreeService = {
       });
   },
   
-  getUserParents(db, user){
+  getAncestors(db, userId){
     return db
       .from('persons')
-      .innerJoin('parent_child', 'persons.id', 'parent_child.parent_id')
-      .innerJoin('user_person', 'user_person.person_id', 'parent_child.child_id')
+      .leftJoin('parent_child', 'persons.id', 'parent_child.parent_id')
       .select('*')
-      .where('user_person.user_id', user.id)
-      .then( parents => {
-        user.parents = parents;
-        console.log(user);
-        return user;
-      });
+      .where('persons.user_id', userId);
   }
-   
-  
- 
 };
+
 
 module.exports = TreeService;

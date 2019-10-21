@@ -44,16 +44,15 @@ usersRouter
                   .location(path.posix.join(req.originalUrl, `/${user.id}`))
                   .json(UsersService.serializeUser(user));
                 const user_id = user.id;
-                const newPerson = {first_name, last_name};
+                const newPerson = {first_name, last_name, user_id};
                 return UsersService.insertPerson(req.app.get('db'), newPerson)
                   .then(person => {
-                    console.log(person);
                     const person_id = person[0].id;
                     const newUserPerson = {user_id, person_id};
                     return UsersService.insertUserPerson(req.app.get('db'), newUserPerson)
                       .then(userPerson => {
                         console.log(userPerson, 'last then');
-                      })
+                      });
                   });  
               });
           });  
