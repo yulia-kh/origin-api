@@ -1,24 +1,30 @@
 const express = require('express');
 const PersonsService = require('./persons-service');
+const { requireAuth } = require('../middleware/jwt-auth');
 
 const personsRouter = express.Router();
 const jsonBodyParser = express.json();
 
-personsRouter
-  .route('/:id/tree')
-  .get((req, res, next) => {
-    PersonsService.getAllParents(req.app.get('db'))
-      .then(persons => {
-        res.json(persons);
-      })
-      .catch(next);
-  });
+
+
+
+// personsRouter
+//   .route('/:id/tree')
+//   .all(requireAuth)
+//   .get((req, res, next) => {
+//     PersonsService.getAllParents(req.app.get('db'))
+//       .then(persons => {
+//         res.json(persons);
+//       })
+//       .catch(next);
+//   });
 
 personsRouter
   .route('/:id/parents')
+  .all(requireAuth)
   .post(jsonBodyParser, (req, res, next) => {
-    let { relation_to_child, first_name, last_name, date_of_birth, date_of_death, details } = req.body;
-    const newParent = {first_name, last_name, date_of_birth, date_of_death, details};
+    let { relation_to_child, first_name, last_name, date_of_birth, date_of_death, details, user_id } = req.body;
+    const newParent = {first_name, last_name, date_of_birth, date_of_death, details, user_id};
     const { id } = req.params;
 
     if(!date_of_birth) {
@@ -36,11 +42,14 @@ personsRouter
         });
     }
 
+    newParent.user_id = req.user.id;
+
     PersonsService.insertParent(
       req.app.get('db'),
       newParent
     )
       .then(person => {
+
         const parent_id = person[0].id;
         const newRelation = {child_id:id, parent_id, relation_to_child};
 
@@ -49,7 +58,7 @@ personsRouter
           newRelation
         )
           .then(() => {
-            res.status(201).json(person);
+            res.status(201).json(person[0]);
           }); 
       })
       .catch(next);
@@ -57,11 +66,20 @@ personsRouter
 
 personsRouter
   .route('/:id')
+  .all(requireAuth)
   .delete((req, res, next) => {
     const { id } = req.params;
     PersonsService.deletePerson(req.app.get('db'), id)
       .then( deletedRow => {
         res.status(204).end();
+      })
+      .catch(next);
+  })
+  .get((req, res, next) => {
+    const { id } = req.params;
+    PersonsService.getOnePerson(req.app.get('db'), id)
+      .then(person => {
+        res.json(person[0]);
       })
       .catch(next);
   })
@@ -72,8 +90,9 @@ personsRouter
     const { id } = req.params;
 
     PersonsService.updatePerson(req.app.get('db'), id, personToUpdate)
-      .then(() => {
+      .then((updatedPerson) => {
         res.status(204).end();
+        // json(updatedPerson[0]);
       })
       .catch(next);
   });

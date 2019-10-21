@@ -14,6 +14,13 @@ const PersonsService = {
       );
   },
 
+  getOnePerson(db, id) {
+    return db
+      .from('persons')
+      .select('*')
+      .where({id});
+  },
+
   insertParent(db, newParent){
     return db
       .insert(newParent)
