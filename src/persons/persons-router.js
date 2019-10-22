@@ -23,8 +23,8 @@ personsRouter
   .route('/:id/parents')
   .all(requireAuth)
   .post(jsonBodyParser, (req, res, next) => {
-    let { relation_to_child, first_name, last_name, date_of_birth, date_of_death, details, user_id } = req.body;
-    const newParent = {first_name, last_name, date_of_birth, date_of_death, details, user_id};
+    let { relation_to_child, first_name, last_name, date_of_birth, date_of_death, details } = req.body;
+    const newParent = {first_name, last_name, date_of_birth, date_of_death, details};
     const { id } = req.params;
 
     if(!date_of_birth) {
@@ -43,6 +43,7 @@ personsRouter
     }
 
     newParent.user_id = req.user.id;
+    console.log(newParent);
 
     PersonsService.insertParent(
       req.app.get('db'),
@@ -79,6 +80,7 @@ personsRouter
     const { id } = req.params;
     PersonsService.getOnePerson(req.app.get('db'), id)
       .then(person => {
+        console.log(person)
         res.json(person[0]);
       })
       .catch(next);

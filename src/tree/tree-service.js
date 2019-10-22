@@ -9,13 +9,26 @@ const TreeService = {
         return result[0];
       });
   },
-  
-  getAncestors(db, userId){
+
+  getParents(db, person) {
     return db
       .from('persons')
-      .leftJoin('parent_child', 'persons.id', 'parent_child.parent_id')
+      .innerJoin('parent_child', 'persons.id', 'parent_child.parent_id')
       .select('*')
-      .where('persons.user_id', userId);
+      .where('parent_child.child_id', person.id);
+  },
+  
+  getAncestors(db, person){
+    // person.name = `${person.first_name} ${person.last_name}`;
+    return this.getParents(db, person).then((parents) => {
+      return Promise.all(parents.map((parent) => {
+        return this.getAncestors(db, parent);
+      }))
+        .then((resolvedParents) => {
+          person.parents = resolvedParents;
+          return person;
+        });
+    });
   }
 };
 

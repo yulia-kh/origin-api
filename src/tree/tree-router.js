@@ -11,9 +11,12 @@ treeRouter
   .all(requireAuth)
   .get((req, res, next) => {
     const { id } = req.user;
-    return TreeService.getAncestors(req.app.get('db'), id)
+    return TreeService.getUserPerson(req.app.get('db'), id)
+      .then(person => {
+        return TreeService.getAncestors(req.app.get('db'), person);
+      })
       .then(tree => {
-        console.log('tree is: ' , tree);
+        console.log(tree);
         return res.json(tree);
       })
       .catch(next);
