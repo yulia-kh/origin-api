@@ -44,8 +44,15 @@ const PersonsService = {
   updatePerson(db, id, newPersonsFields) {
     return db('persons')
       .where({ id })
-      .update(newPersonsFields);
-  }      
+      .update(newPersonsFields)
+      .returning('*');
+  },
+  
+  updateRelation(db, parent_id, newRelationField){
+    return db('parent_child')
+      .where({ parent_id })
+      .update(newRelationField);
+  }
 };
 
 

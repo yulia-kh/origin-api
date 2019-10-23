@@ -5,20 +5,6 @@ const { requireAuth } = require('../middleware/jwt-auth');
 const personsRouter = express.Router();
 const jsonBodyParser = express.json();
 
-
-
-
-// personsRouter
-//   .route('/:id/tree')
-//   .all(requireAuth)
-//   .get((req, res, next) => {
-//     PersonsService.getAllParents(req.app.get('db'))
-//       .then(persons => {
-//         res.json(persons);
-//       })
-//       .catch(next);
-//   });
-
 personsRouter
   .route('/:id/parents')
   .all(requireAuth)
@@ -43,7 +29,6 @@ personsRouter
     }
 
     newParent.user_id = req.user.id;
-    console.log(newParent);
 
     PersonsService.insertParent(
       req.app.get('db'),
@@ -80,22 +65,28 @@ personsRouter
     const { id } = req.params;
     PersonsService.getOnePerson(req.app.get('db'), id)
       .then(person => {
-        console.log(person)
         res.json(person[0]);
       })
       .catch(next);
   })
   .patch(jsonBodyParser, (req, res, next) => {
-    const { relation_to_child, first_name, last_name, date_of_birth, date_of_death, details } = req.body;
+    const { relation_to_child, child_id, first_name, last_name, date_of_birth, date_of_death, details } = req.body;
     const personToUpdate = { first_name, last_name, date_of_birth, date_of_death, details };
-    const relationToUpdate = relation_to_child;
     const { id } = req.params;
 
     PersonsService.updatePerson(req.app.get('db'), id, personToUpdate)
-      .then((updatedPerson) => {
-        res.status(204).end();
-        // json(updatedPerson[0]);
+      .then(person => {
+        const parent_id = person[0].id;
+        const updatedRelation = {child_id, parent_id, relation_to_child};
+        PersonsService.updateRelation(
+          req.app.get('db'),
+          id,
+          updatedRelation)
+          .then(updatedPerson => {
+            res.status(204).end();}
+          );
       })
+     
       .catch(next);
   });
 

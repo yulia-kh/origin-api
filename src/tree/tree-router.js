@@ -1,10 +1,8 @@
 const express = require('express');
-//const PersonsService = require('../persons/persons-service');
 const TreeService = require('./tree-service');
 const { requireAuth } = require('../middleware/jwt-auth');
 
 const treeRouter = express.Router();
-//const jsonBodyParser = express.json();
 
 treeRouter
   .route('/')
@@ -13,11 +11,21 @@ treeRouter
     const { id } = req.user;
     return TreeService.getUserPerson(req.app.get('db'), id)
       .then(person => {
-        return TreeService.getAncestors(req.app.get('db'), person);
+        return TreeService.getParents(req.app.get('db'), person.user_id);
       })
-      .then(tree => {
-        console.log(tree);
-        return res.json(tree);
+      .then(family => {
+        family.map(person => {
+          let parents = (family.filter(parent => parent.child_id === person.id));
+          let parentsIdArr = [];
+          for (let i=0; i<parents.length; i++) {
+            parentsIdArr.push(parents[i].id);
+          }
+          person.parents = parentsIdArr;
+       
+        });
+        console.log(family);
+        return res.json(family);
+
       })
       .catch(next);
   }
