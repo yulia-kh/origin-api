@@ -38,7 +38,6 @@ personsRouter
 
         const parent_id = person[0].id;
         const newRelation = {child_id:id, parent_id, relation_to_child};
-
         PersonsService.insertRelation(
           req.app.get('db'),
           newRelation

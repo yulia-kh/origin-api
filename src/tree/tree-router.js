@@ -9,28 +9,32 @@ treeRouter
   .all(requireAuth)
   .get((req, res, next) => {
     const { id } = req.user;
+    let rootId;
     return TreeService.getUserPerson(req.app.get('db'), id)
       .then(person => {
+        rootId = person.id;
         return TreeService.getParents(req.app.get('db'), person.user_id);
       })
       .then(family => {
-        family.map(person => {
-          let parents = (family.filter(parent => parent.child_id === person.id));
-          let parentsIdArr = [];
-          for (let i=0; i<parents.length; i++) {
-            parentsIdArr.push(parents[i].id);
-          }
-          person.parents = parentsIdArr;
-       
+        const familyObj = family.reduce((obj, item) => {
+          obj[item.id] = item;
+          return obj;
+        }, {});
+        family.forEach(person => {
+          if(person.child_id !== null){
+            if(!Array.isArray(familyObj[person.child_id].parents)) {
+              familyObj[person.child_id].parents = [];
+            }
+            familyObj[person.child_id].parents.push(person.id);
+          }       
         });
-        console.log(family);
-        return res.json(family);
-
+        return res.json({
+          rootId: rootId,
+          family: familyObj
+        });
       })
       .catch(next);
-  }
-  
-  ); 
+  }); 
 
 
 module.exports = treeRouter;
