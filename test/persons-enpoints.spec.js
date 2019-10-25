@@ -44,13 +44,14 @@ describe('Persons Endpoints', function() {
       };
       return supertest(app)
         .post('/api/persons/1/parents')
-        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+        .set('Authorization', helpers.makeAuthHeader(testUser))
         .send(newPerson)
         .expect(201)
         .expect(res => {
           expect(res.body).to.have.property('id');
           expect(res.body.first_name).to.eql(newPerson.first_name);
-          // expect(res.body.id).to.eql(newPerson.id);
+          expect(res.body.last_name).to.eql(newPerson.last_name);
+          expect(res.body.id).to.eql(newPerson.id);
           // expect(res.body.user_id).to.eql(testUser.id);
           // expect(res.headers.location).to.eql(`/api/persons/${res.body.id}/parents`);
         })
