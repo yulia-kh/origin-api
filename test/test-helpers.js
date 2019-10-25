@@ -20,7 +20,7 @@ function makeUsersArray() {
   ]
 }
 
-function makePersonsArray(users) {
+function makePersonsArray() {
   return [
     {
       id: 1,
@@ -66,12 +66,12 @@ function makeParentChildArray(persons) {
     {
       child_id: 2,
       parent_id: 3,
-      relation_to_child,
+      relation_to_child: 'Mother',
     },
     {
       child_id: 2,
       parent_id: 4,
-      relation_to_child,
+      relation_to_child: 'Father',
     },
   ];
 }
@@ -159,8 +159,8 @@ function makeMaliciousArticle(user) {
 
 function makeFamilyFixtures() {
   const testUsers = makeUsersArray()
-  const testPersons = makePersonsArray(testUsers)
-  const testParentChild = makeParentChildArray(testPersons)
+  const testPersons = makePersonsArray()
+  const testParentChild = makeParentChildArray()
   const testUserPerson = makeUserPersonArray()
   return { testUsers, testPersons, testParentChild, testUserPerson }
 }
@@ -169,19 +169,22 @@ function cleanTables(db) {
   return db.transaction(trx =>
     trx.raw(
       `TRUNCATE
-        blogful_articles,
-        blogful_users,
-        blogful_comments
+      persons,
+      parent_child,
+      users,
+      user_person
       `
     )
     .then(() =>
       Promise.all([
-        trx.raw(`ALTER SEQUENCE blogful_articles_id_seq minvalue 0 START WITH 1`),
-        trx.raw(`ALTER SEQUENCE blogful_users_id_seq minvalue 0 START WITH 1`),
-        trx.raw(`ALTER SEQUENCE blogful_comments_id_seq minvalue 0 START WITH 1`),
-        trx.raw(`SELECT setval('blogful_articles_id_seq', 0)`),
-        trx.raw(`SELECT setval('blogful_users_id_seq', 0)`),
-        trx.raw(`SELECT setval('blogful_comments_id_seq', 0)`),
+        trx.raw(`ALTER SEQUENCE persons_id_seq minvalue 0 START WITH 1`),
+        trx.raw(`ALTER SEQUENCE users_id_seq minvalue 0 START WITH 1`),
+        // trx.raw(`ALTER SEQUENCE parent_child_id_seq minvalue 0 START WITH 1`),
+        // trx.raw(`ALTER SEQUENCE user_person_id_seq minvalue 0 START WITH 1`),
+        trx.raw(`SELECT setval('persons_id_seq', 0)`),
+        trx.raw(`SELECT setval('users_id_seq', 0)`),
+      //   trx.raw(`SELECT setval('parent_child_id_seq', 0)`),
+      //   trx.raw(`SELECT setval('user_person_id_seq', 0)`),
       ])
     )
   )
@@ -194,6 +197,7 @@ function seedUsers(db, users) {
   }))
   return db.into('users').insert(preppedUsers)
     .then(() =>
+      // return db.into('user_person').insert()
       // update the auto sequence to stay in sync
       db.raw(
         `SELECT setval('users_id_seq', ?)`,
@@ -202,24 +206,24 @@ function seedUsers(db, users) {
     )
 }
 
-function seedArticlesTables(db, users, articles, comments=[]) {
+function seedPersonsTables(db, users, persons) {
   // use a transaction to group the queries and auto rollback on any failure
   return db.transaction(async trx => {
     await seedUsers(trx, users)
-    await trx.into('blogful_articles').insert(articles)
+    await trx.into('persons').insert(persons)
     // update the auto sequence to match the forced id values
     await trx.raw(
-      `SELECT setval('blogful_articles_id_seq', ?)`,
-      [articles[articles.length - 1].id],
+      `SELECT setval('persons_id_seq', ?)`,
+      [persons[persons.length - 1].id],
     )
     // only insert comments if there are some, also update the sequence counter
-    if (comments.length) {
-      await trx.into('blogful_comments').insert(comments)
-      await trx.raw(
-        `SELECT setval('blogful_comments_id_seq', ?)`,
-        [comments[comments.length - 1].id],
-      )
-    }
+    // if (persons.length) {
+    //   await trx.into('_comments').insert(comments)
+    //   await trx.raw(
+    //     `SELECT setval('blogful_comments_id_seq', ?)`,
+    //     [comments[comments.length - 1].id],
+    //   )
+    // }
   })
 }
 
@@ -242,15 +246,16 @@ function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
 
 module.exports = {
   makeUsersArray,
-  makeArticlesArray,
+  makePersonsArray,
+  makeParentChildArray,
+  makeUserPersonArray,
   makeExpectedArticle,
   makeExpectedArticleComments,
   makeMaliciousArticle,
-  makeCommentsArray,
 
   makeFamilyFixtures,
   cleanTables,
-  seedArticlesTables,
+  seedPersonsTables,
   seedMaliciousArticle,
   makeAuthHeader,
   seedUsers,

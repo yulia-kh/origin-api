@@ -18,6 +18,7 @@ const PersonsService = {
     return db
       .from('persons')
       .select('*')
+      .innerJoin('parent_child', 'persons.id', 'parent_child.parent_id')
       .where({id});
   },
 

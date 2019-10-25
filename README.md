@@ -1,26 +1,18 @@
-# Express Boilerplate!
+Origin API
 
-This is a boilerplate project used for starting new projects!
+To access the live API endpoint, use the following URL: https://fast-eyrie-75698.herokuapp.com/
 
-## Set up
+Getting Started
+Clone the repository and run npm i
+Create local Postgresql databases: family and family-test
+Run mv example.env .env and provide the local database locations within your .env file
+Run npm run migrate and npm run migrate:test to update each database with appropriate tables
+To seed, use terminal to enter root of application and run (NOTE: add username/password if you elected to apply these to your configuration): psql -d family -f ./seeds/seed.family-tables.sql
+Run npm run dev to start server 
 
-Complete the following steps to start a new project (NEW-PROJECT-NAME):
 
-1. Clone this repository to your local machine `git clone BOILERPLATE-URL NEW-PROJECTS-NAME`
-2. `cd` into the cloned repository
-3. Make a fresh start of the git history for this project with `rm -rf .git && git init`
-4. Install the node dependencies `npm install`
-5. Move the example Environment file to `.env` that will be ignored by git and read by the express server `mv example.env .env`
-6. Edit the contents of the `package.json` to use NEW-PROJECT-NAME instead of `"name": "express-boilerplate",`
+Description
+* Will require valid JWT token.
 
-## Scripts
+Origin API is the Express/NodeJS server responsible for handling API requests for Origin (https://github.com/yulia-kh/origin). While running, users can make the following API requests:
 
-Start the application `npm start`
-
-Start nodemon for the application `npm run dev`
-
-Run the tests `npm test`
-
-## Deploying
-
-When your new project is ready for deployment, add a new Heroku application with `heroku create`. This will make a new git remote called "heroku" and you can then `npm run deploy` which will push to this remote's master branch.

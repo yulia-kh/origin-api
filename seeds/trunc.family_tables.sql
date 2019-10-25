@@ -1,5 +1,6 @@
 TRUNCATE
   persons,
   parent_child,
-  users
+  users,
+  user_person
   RESTART IDENTITY CASCADE;
