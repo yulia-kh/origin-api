@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path');
 const UsersService = require('./users-service');
 
 const usersRouter = express.Router();
@@ -38,10 +37,6 @@ usersRouter
               newUser
             )
               .then(user => {
-                // res
-                //   .status(201)
-                //   .location(path.posix.join(req.originalUrl, `/${user.id}`))
-                //   .json(UsersService.serializeUser(user));
                 const user_id = user.id;
                 const newPerson = {first_name, last_name, user_id};
                 return UsersService.insertPerson(req.app.get('db'), newPerson)

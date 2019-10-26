@@ -33,9 +33,8 @@ describe('Persons Endpoints', function() {
       )
     );
 
-    it.only('creates a person, responding with 201 and the new person', function() {
+    it('creates a person, responding with 201 and the new person', function() {
       this.retries(3);
-      const testPerson = testPersons[0];
       const testUser = testUsers[0];
       const newPerson = {
         first_name: 'test name',
@@ -51,9 +50,6 @@ describe('Persons Endpoints', function() {
           expect(res.body).to.have.property('id');
           expect(res.body.first_name).to.eql(newPerson.first_name);
           expect(res.body.last_name).to.eql(newPerson.last_name);
-          expect(res.body.id).to.eql(newPerson.id);
-          // expect(res.body.user_id).to.eql(testUser.id);
-          // expect(res.headers.location).to.eql(`/api/persons/${res.body.id}/parents`);
         })
         .expect(res =>
           db
@@ -63,8 +59,7 @@ describe('Persons Endpoints', function() {
             .first()
             .then(row => {
               expect(row.first_name).to.eql(newPerson.first_name);
-              // expect(row.id).to.eql(newPerson.id);
-              // expect(row.user_id).to.eql(testUser.id);
+              expect(row.last_name).to.eql(newPerson.last_name);
             })
         );
     });
@@ -72,7 +67,6 @@ describe('Persons Endpoints', function() {
     const requiredFields = ['relation_to_child'];
 
     requiredFields.forEach(field => {
-      const testPerson = testPersons[0];
       const testUser = testUsers[0];
       const newPerson = {
         first_name: 'test name',
@@ -86,9 +80,9 @@ describe('Persons Endpoints', function() {
         return supertest(app)
           .post('/api/persons/1/parents')
           .set('Authorization', helpers.makeAuthHeader(testUser))
-          .send(newComment)
+          .send(newPerson)
           .expect(400, {
-            error: `Missing '${field}' in request body`,
+            error: {message: 'Missing \'relation_to_child\' in request body'},
           });
       });
     });

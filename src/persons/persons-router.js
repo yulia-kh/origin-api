@@ -24,7 +24,7 @@ personsRouter
     if (!relation_to_child) {
       return res.status(400)
         .json({
-          error: {message: 'Request body must contain \'mother or \'father\'.'}
+          error: {message: 'Missing \'relation_to_child\' in request body'}
         });
     }
 
@@ -55,7 +55,7 @@ personsRouter
   .delete((req, res, next) => {
     const { id } = req.params;
     PersonsService.deletePerson(req.app.get('db'), id)
-      .then( deletedRow => {
+      .then(() => {
         res.status(204).end();
       })
       .catch(next);
@@ -81,11 +81,10 @@ personsRouter
           req.app.get('db'),
           id,
           updatedRelation)
-          .then(updatedPerson => {
+          .then(() => {
             res.status(204).end();}
           );
       })
-     
       .catch(next);
   });
 

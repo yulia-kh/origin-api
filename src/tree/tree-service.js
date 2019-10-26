@@ -10,13 +10,6 @@ const TreeService = {
       });
   },
 
-  // getParents(db, person) {
-  //   return db
-  //     .from('persons')
-  //     .innerJoin('parent_child', 'persons.id', 'parent_child.parent_id')
-  //     .select('*')
-  //     .where('parent_child.child_id', person.id);
-  // },
   getParents(db, user_id) {
     return db
       .select('*')
@@ -25,18 +18,6 @@ const TreeService = {
       .leftJoin('parent_child', 'persons.id', 'parent_child.parent_id')
       .where('user_person.user_id', user_id);
   }
-  
-  // getAncestors(db, person){
-  //   return this.getParents(db, person).then((parents) => {
-  //     return Promise.all(parents.map((parent) => {
-  //       return this.getAncestors(db, parent);
-  //     }))
-  //       .then((resolvedParents) => {
-  //         person.parents = resolvedParents;
-  //         return person;
-  //       });
-  //   });
-  // }
 };
 
 

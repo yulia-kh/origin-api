@@ -153,24 +153,7 @@ describe('Users Endpoints', function() {
           .expect(res => {
             expect(res.body).to.have.property('user_id')
             expect(res.body).to.have.property('person_id')
-            
-            // .then( db
-            //   .from('users')
-            //   .select('*')
-            //   .where('id', res.body.id)
-            //   // .first()
-            //   .then(row => {
-            //     //expect(res.body).to.not.have.property('password')
-            //     expect(row.user_name).to.eql(newUser.user_name)
-            //     expect(row.first_name).to.eql(newUser.first_name)
-            //     expect(row.last_name).to.eql(newUser.last_name)
-
-            //     return bcrypt.compare(newUser.password, row.password)
-            //   })
-            //   .then(compareMatch => {
-            //     expect(compareMatch).to.be.true
-            //   }))
-          })     
+        })     
       })
     })
   })

@@ -1,5 +1,3 @@
-// const xss = require('xss');
-
 const PersonsService = {
   getAllParents(db) {
     return db

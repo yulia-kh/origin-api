@@ -85,8 +85,7 @@ describe('Auth Endpoints', function() {
         .expect(200, {
           authToken: expectedToken,
         })
-    })
-
+      })
     })
   })
 })
